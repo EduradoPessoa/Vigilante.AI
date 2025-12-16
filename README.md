@@ -13,27 +13,63 @@ A "Vigilante.AI" é uma startup que precisa de um MVP para vistoria veicular aut
 - **Dashboard**: Visualização de vistorias recentes com indicadores de risco.
 - **Detalhes da Vistoria**: Mapa interativo e parecer gerado por IA.
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack (Monorepo)
 
-- **Frontend**: React Native (Expo) + Expo Router
-- **Backend**: Supabase (Auth, Database)
-- **Automação/IA**: N8N (Mockado na versão atual)
+O projeto foi reestruturado como um Monorepo contendo:
+
+### 🌐 Web (`/web`)
+- **Framework**: Next.js 14+ (App Router)
+- **Estilização**: Tailwind CSS
+- **Ícones**: Lucide React
+- **Mapas**: Google Maps Embed
+
+### 📱 Mobile (`/mobile`)
+- **Framework**: React Native (Expo)
+- **Roteamento**: Expo Router
 - **Mapas**: react-native-maps
-- **HTTP Client**: Axios
+
+### ☁️ Backend & Serviços
+- **Supabase**: Auth, Database
+- **N8N**: Orquestração de workflows (Mockado)
+- **Axios**: HTTP Client
 
 ## 📦 Como Rodar
 
 1. Clone o repositório.
-2. Instale as dependências:
+2. Instale as dependências na raiz:
    ```bash
    npm install
    ```
-3. Configure as variáveis de ambiente:
-   Crie um arquivo `.env` na raiz baseado no `.env.example` e preencha com suas chaves do Supabase.
-4. Execute o projeto:
-   - Web: `npm run web`
-   - Mobile: `npm run android` ou `npm run ios`
 
-## 🗄️ Banco de Dados (Supabase)
+### Rodando a Aplicação Web (Next.js)
+```bash
+npm run web
+# ou
+cd web && npm run dev
+```
+Acesse: http://localhost:3000
 
-Execute o script `supabase_schema.sql` no Editor SQL do seu projeto Supabase para criar as tabelas e políticas de segurança necessárias.
+### Rodando a Aplicação Mobile (Expo)
+```bash
+npm run mobile
+# ou
+cd mobile && npx expo start
+```
+Use o app **Expo Go** no seu celular para escanear o QR Code.
+
+## ⚙️ Configuração
+Crie os arquivos `.env` nas pastas `web` e `mobile` baseados nos exemplos:
+
+**Web (`web/.env.local`):**
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_N8N_WEBHOOK_URL=...
+```
+
+**Mobile (`mobile/.env`):**
+```env
+EXPO_PUBLIC_SUPABASE_URL=...
+EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+EXPO_PUBLIC_N8N_WEBHOOK_URL=...
+```
