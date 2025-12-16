@@ -1,50 +1,39 @@
-# Welcome to your Expo app 👋
+# Vigilante.AI
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A "Vigilante.AI" é uma startup que precisa de um MVP para vistoria veicular automatizada. O sistema permite que um agente de campo registre um veículo, valide sua situação legal e obtenha um resumo inteligente sobre o risco daquele automóvel.
 
-## Get started
+## 🚀 Funcionalidades
 
-1. Install dependencies
+- **Autenticação**: Login e Cadastro via Supabase Auth.
+- **Perfil do Agente**: Cadastro com preenchimento automático de endereço (ViaCEP).
+- **Vistoria Veicular**:
+  - Input de Placa (Mercosul/Antiga) e VIN.
+  - Geolocalização automática do local da vistoria.
+  - Mock de integração com N8N para análise de risco e dados jurídicos.
+- **Dashboard**: Visualização de vistorias recentes com indicadores de risco.
+- **Detalhes da Vistoria**: Mapa interativo e parecer gerado por IA.
 
+## 🛠 Tech Stack
+
+- **Frontend**: React Native (Expo) + Expo Router
+- **Backend**: Supabase (Auth, Database)
+- **Automação/IA**: N8N (Mockado na versão atual)
+- **Mapas**: react-native-maps
+- **HTTP Client**: Axios
+
+## 📦 Como Rodar
+
+1. Clone o repositório.
+2. Instale as dependências:
    ```bash
    npm install
    ```
+3. Configure as variáveis de ambiente:
+   Crie um arquivo `.env` na raiz baseado no `.env.example` e preencha com suas chaves do Supabase.
+4. Execute o projeto:
+   - Web: `npm run web`
+   - Mobile: `npm run android` ou `npm run ios`
 
-2. Start the app
+## 🗄️ Banco de Dados (Supabase)
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Execute o script `supabase_schema.sql` no Editor SQL do seu projeto Supabase para criar as tabelas e políticas de segurança necessárias.

@@ -1,98 +1,199 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { useAuth } from '@/contexts/AuthContext';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { supabase } from '@/lib/supabase';
+import { Inspection, inspectionService } from '@/services/inspectionService';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const { session } = useAuth();
+  const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const loadData = useCallback(async () => {
+    try {
+      const data = await inspectionService.getInspections();
+      setInspections(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace('/(auth)/login');
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return '#4CAF50';
+      case 'failed': return '#F44336';
+      default: return '#FFC107';
+    }
+  };
+
+  const renderItem = ({ item }: { item: Inspection }) => (
+    <TouchableOpacity onPress={() => router.push(`/inspection/${item.id}`)} activeOpacity={0.8}>
+    <View style={[styles.card, isDark && styles.cardDark]}>
+      <View style={styles.cardHeader}>
+        <View>
+            <Text style={[styles.plate, isDark && styles.textLight]}>{item.plate}</Text>
+            <Text style={[styles.vin, isDark && styles.textDim]}>{item.vin}</Text>
+        </View>
+        <View style={[styles.badge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.badgeText}>{item.status.toUpperCase()}</Text>
+        </View>
+      </View>
+      
+      {item.summary && (
+        <Text style={[styles.summary, isDark && styles.textLight]} numberOfLines={2}>{item.summary}</Text>
+      )}
+      
+      <View style={[styles.footer, isDark && styles.footerDark]}>
+        <Text style={[styles.date, isDark && styles.textDim]}>{new Date(item.created_at).toLocaleDateString()}</Text>
+        {item.risk_score !== undefined && (
+            <Text style={[styles.risk, { color: item.risk_score > 50 ? '#F44336' : '#4CAF50' }]}>
+                Risco: {item.risk_score}%
+            </Text>
+        )}
+      </View>
+    </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <ThemedView style={styles.container}>
+      <View style={styles.header}>
+        <ThemedText type="title">Vistorias Recentes</ThemedText>
+        <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color={isDark ? '#fff' : '#000'} />
+        </TouchableOpacity>
+      </View>
+      
+      <FlatList
+        data={inspections}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={isDark ? '#fff' : '#000'} />
+        }
+        ListEmptyComponent={
+            <View style={styles.empty}>
+                <ThemedText>Nenhuma vistoria encontrada.</ThemedText>
+            </View>
+        }
+      />
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    padding: 20,
+    paddingTop: 60,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  listContent: {
+    padding: 20,
+    paddingTop: 0,
+    gap: 15,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
+  cardDark: {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#333',
+    borderWidth: 1,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  plate: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  vin: {
+    fontSize: 14,
+    color: '#666',
+  },
+  textLight: {
+    color: '#fff',
+  },
+  textDim: {
+    color: '#aaa',
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  summary: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 10,
+    lineHeight: 20,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 10,
+  },
+  footerDark: {
+    borderTopColor: '#333',
+  },
+  date: {
+    fontSize: 12,
+    color: '#888',
+  },
+  risk: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  empty: {
+    padding: 40,
+    alignItems: 'center',
+  }
 });
