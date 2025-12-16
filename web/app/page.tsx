@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { inspectionService, Inspection } from '@/services/inspectionService';
 import Link from 'next/link';
-import { Plus, Search, MapPin, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Search, MapPin, AlertTriangle, CheckCircle, Clock, User } from 'lucide-react';
 
 export default function Dashboard() {
   const { session, loading: authLoading } = useAuth();
@@ -36,13 +36,22 @@ export default function Dashboard() {
       <header className="bg-white shadow">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard de Vistorias</h1>
-          <Link
-            href="/new-inspection"
-            className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-          >
-            <Plus className="h-4 w-4" />
-            Nova Vistoria
-          </Link>
+          <div className="flex gap-4">
+            <Link
+              href="/profile"
+              className="flex items-center gap-2 rounded-md bg-white border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              <User className="h-4 w-4" />
+              Meu Perfil
+            </Link>
+            <Link
+              href="/new-inspection"
+              className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+            >
+              <Plus className="h-4 w-4" />
+              Nova Vistoria
+            </Link>
+          </div>
         </div>
       </header>
 

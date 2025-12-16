@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -10,11 +11,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { signInWithMock } = useAuth();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // MOCK LOGIN CHECK
+    // If Supabase is not configured (placeholder keys) or user specifically asks for demo
+    if (email === 'demo@vigilante.ai' || process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-project')) {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      signInWithMock();
+      router.push('/');
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -53,6 +65,13 @@ export default function LoginPage() {
           <p className="mt-2 text-slate-600">Acesse sua conta para continuar</p>
         </div>
 
+        <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 mb-6">
+          <strong>Modo de Teste:</strong><br/>
+          Como o backend ainda não foi configurado, você pode usar qualquer email para entrar no modo Demo.
+          <br/>
+          Sugestão: <code>demo@vigilante.ai</code>
+        </div>
+
         <form onSubmit={handleLogin} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -64,7 +83,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-                placeholder="agente@vigilante.ai"
+                placeholder="demo@vigilante.ai"
               />
             </div>
             <div>
@@ -76,7 +95,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-                placeholder="••••••••"
+                placeholder="Qualquer senha"
               />
             </div>
           </div>

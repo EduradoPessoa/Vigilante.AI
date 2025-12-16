@@ -90,9 +90,22 @@ export default function ProfileScreen() {
     }
   }
 
+  const handleCepChange = (text: string) => {
+    // Remove tudo que não é dígito
+    let value = text.replace(/\D/g, '');
+    
+    // Aplica a máscara XXXXX-XXX
+    if (value.length > 5) {
+      value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+    }
+    
+    setCep(value);
+  };
+
   const handleCepBlur = async () => {
-    if (cep.length === 8) {
-        const address = await viaCepService.getAddressByCep(cep);
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+        const address = await viaCepService.getAddressByCep(cleanCep);
         if (address) {
             setStreet(address.logradouro);
             setNeighborhood(address.bairro);
@@ -127,13 +140,13 @@ export default function ProfileScreen() {
             <View style={styles.row}>
                 <TextInput
                     style={[styles.input, styles.flex1, isDark && styles.inputDark]}
-                    placeholder="CEP (00000000)"
+                    placeholder="CEP (00000-000)"
                     placeholderTextColor={isDark ? '#888' : '#666'}
                     value={cep}
-                    onChangeText={setCep}
+                    onChangeText={handleCepChange}
                     onBlur={handleCepBlur}
-                    keyboardType="numeric"
-                    maxLength={8}
+                    keyboardType="number-pad"
+                    maxLength={9}
                 />
             </View>
 
