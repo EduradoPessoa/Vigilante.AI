@@ -10,11 +10,41 @@ export default function InspectionDetail({ params }: { params: Promise<{ id: str
   const unwrappedParams = use(params);
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [loading, setLoading] = useState(true);
+  const [address, setAddress] = useState<string>('Carregando endereço...');
   const router = useRouter();
 
   useEffect(() => {
     loadInspection();
   }, [unwrappedParams.id]);
+
+  useEffect(() => {
+    if (inspection?.location) {
+      // Simple reverse geocoding using OpenStreetMap (Nominatim)
+      // Note: In production, you should use a proper API key or service with higher limits
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${inspection.location.latitude}&lon=${inspection.location.longitude}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.address) {
+            const { road, suburb, neighbourhood, city, town, village, state } = data.address;
+            // Prefer road, then neighborhood (or suburb), then city (or town/village), then state
+            const parts = [
+              road,
+              suburb || neighbourhood,
+              city || town || village,
+              state
+            ].filter(Boolean); // Remove undefined/null/empty strings
+            
+            setAddress(parts.join(', ') || data.display_name || 'Endereço não encontrado');
+          } else {
+            setAddress(data.display_name || 'Endereço não encontrado');
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching address:', err);
+          setAddress('Endereço indisponível');
+        });
+    }
+  }, [inspection]);
 
   async function loadInspection() {
     try {
@@ -94,10 +124,15 @@ export default function InspectionDetail({ params }: { params: Promise<{ id: str
                 )}
               </div>
               <div className="px-4 py-3 sm:px-6">
-                 <p className="flex items-center text-sm text-slate-500">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    {inspection.location?.latitude}, {inspection.location?.longitude}
-                 </p>
+                 <div className="flex flex-col gap-1 text-sm text-slate-500">
+                    <div className="flex items-start gap-2">
+                        <MapPin className="mt-1 h-4 w-4 shrink-0" />
+                        <span>{address}</span>
+                    </div>
+                    <span className="pl-6 font-mono text-red-600">
+                        ({inspection.location?.latitude}, {inspection.location?.longitude})
+                    </span>
+                 </div>
               </div>
             </div>
           </div>

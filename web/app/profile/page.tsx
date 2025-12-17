@@ -123,6 +123,7 @@ export default function ProfilePage() {
       await new Promise(resolve => setTimeout(resolve, 500));
       setMessage({ type: 'success', text: 'Perfil atualizado com sucesso! (Modo Demo)' });
       setLoading(false);
+      setTimeout(() => router.push('/'), 1500);
       return;
     }
 
@@ -130,10 +131,12 @@ export default function ProfilePage() {
 
     if (error) {
       setMessage({ type: 'error', text: 'Erro ao salvar perfil: ' + error.message });
+      setLoading(false);
     } else {
-      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso! Redirecionando...' });
+      setLoading(false);
+      setTimeout(() => router.push('/'), 1500);
     }
-    setLoading(false);
   }
 
   return (
