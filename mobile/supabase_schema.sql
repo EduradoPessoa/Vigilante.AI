@@ -7,6 +7,8 @@ create table public.profiles (
   address_neighborhood text,
   address_city text,
   address_state text,
+  address_number text,
+  address_complement text,
   updated_at timestamp with time zone,
   
   constraint username_length check (char_length(full_name) >= 3)
