@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
 // URL do webhook do n8n
 const N8N_WEBHOOK_URL = process.env.EXPO_PUBLIC_N8N_WEBHOOK_URL || 'https://your-n8n-instance.com/webhook/inspection';
@@ -34,6 +35,27 @@ export type Inspection = {
   created_at: string;
 };
 
+// Helper to map Supabase row to Inspection type
+const mapRowToInspection = (row: any): Inspection => {
+  return {
+    id: row.id,
+    plate: row.plate,
+    vin: row.vin,
+    status: row.status as InspectionStatus,
+    risk_score: row.risk_score,
+    summary: row.summary,
+    location: row.latitude && row.longitude ? {
+      latitude: row.latitude,
+      longitude: row.longitude
+    } : undefined,
+    owner_data: row.owner_data,
+    fines: row.fines,
+    restrictions: row.restrictions,
+    ai_analysis: row.ai_analysis,
+    created_at: row.created_at
+  };
+};
+
 export const inspectionService = {
   /**
    * Valida formato de placa (Mercosul ou Antiga)
@@ -49,7 +71,7 @@ export const inspectionService = {
   },
 
   /**
-   * Inicia uma nova vistoria enviando dados para o n8n
+   * Inicia uma nova vistoria salvando no Supabase
    */
   async startInspection(plate: string, vin: string, location?: { latitude: number; longitude: number }) {
     try {
@@ -57,8 +79,11 @@ export const inspectionService = {
         throw new Error('Placa inválida. Use o formato Mercosul ou padrão antigo.');
       }
 
-      // Mock de sucesso para teste sem backend real
-      if (N8N_WEBHOOK_URL.includes('your-n8n-instance')) {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Mock de sucesso se não houver user ou for URL de exemplo
+      if (!user || N8N_WEBHOOK_URL.includes('your-n8n-instance')) {
+        console.warn('Usando modo Mock/Demo para startInspection (Mobile)');
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve({ 
@@ -70,15 +95,38 @@ export const inspectionService = {
         });
       }
 
-      // Chamada ao n8n
-      const response = await axios.post(N8N_WEBHOOK_URL, {
-        plate,
-        vin,
-        location,
-        timestamp: new Date().toISOString(),
-      });
+      // 1. Criar registro no Supabase
+      const { data, error } = await supabase
+        .from('inspections')
+        .insert({
+          user_id: user.id,
+          plate,
+          vin,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-      return response.data;
+      if (error) throw error;
+
+      // 2. Opcional: Chamar webhook do n8n se configurado
+      if (N8N_WEBHOOK_URL && !N8N_WEBHOOK_URL.includes('your-n8n-instance')) {
+         axios.post(N8N_WEBHOOK_URL, {
+          inspection_id: data.id,
+          plate,
+          vin,
+          location,
+          timestamp: new Date().toISOString(),
+        }).catch(err => console.error('Erro ao chamar webhook n8n:', err));
+      }
+
+      return {
+        success: true,
+        message: "Vistoria iniciada",
+        inspectionId: data.id
+      };
     } catch (error) {
       console.error('Error starting inspection:', error);
       throw error;
@@ -86,10 +134,53 @@ export const inspectionService = {
   },
 
   /**
-   * Busca vistorias (Mockado por enquanto ou do Supabase)
+   * Busca vistorias do Supabase
    */
   async getInspections(): Promise<Inspection[]> {
-    // Mock return com dados ricos
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return this.getMockInspections();
+      }
+
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao buscar vistorias do Supabase:', error);
+        return this.getMockInspections();
+      }
+
+      return data.map(mapRowToInspection);
+    } catch (error) {
+      console.error('Error in getInspections:', error);
+      return this.getMockInspections();
+    }
+  },
+
+  async getInspectionById(id: string): Promise<Inspection | undefined> {
+    try {
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (!error && data) {
+        return mapRowToInspection(data);
+      }
+    } catch (err) {
+       console.warn('Erro ao buscar inspeção no Supabase:', err);
+    }
+    
+    const all = await this.getMockInspections();
+    return all.find(i => i.id === id);
+  },
+
+  async getMockInspections(): Promise<Inspection[]> {
     return [
       {
         id: '1',
@@ -128,10 +219,5 @@ export const inspectionService = {
         created_at: new Date(Date.now() - 172800000).toISOString(),
       },
     ];
-  },
-
-  async getInspectionById(id: string): Promise<Inspection | undefined> {
-    const all = await this.getInspections();
-    return all.find(i => i.id === id);
   }
 };

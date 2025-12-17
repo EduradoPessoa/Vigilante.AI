@@ -73,3 +73,11 @@ EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 EXPO_PUBLIC_N8N_WEBHOOK_URL=...
 ```
+
+## 🤖 Ferramentas de IA Utilizadas
+
+Este projeto foi desenvolvido com o auxílio de ferramentas de IA para acelerar a produtividade e garantir a qualidade do código:
+
+- **Trae AI (IDE)**: Utilizado como par programador principal para geração de código (Next.js/React Native), refatoração, correção de bugs e automação de commits.
+- **Claude 3.5 Sonnet / GPT-4o**: Modelos subjacentes utilizados pelo agente para raciocínio lógico complexo e estruturação de arquitetura.
+
