@@ -3,13 +3,24 @@
   "private": true,
   "workspaces": [
     "mobile",
-    "web"
+    "web",
+    "packages/*"
   ],
   "scripts": {
     "web": "npm run dev --workspace=web",
     "mobile": "npm run start --workspace=mobile",
     "android": "npm run android --workspace=mobile",
     "ios": "npm run ios --workspace=mobile",
+    "test:web": "npm run test --workspace=web",
+    "test:mobile": "npx jest -c mobile/jest.config.js",
+    "test": "npm run test:web && npm run test:mobile",
     "install:all": "npm install"
+  },
+  "dependencies": {
+    "@expo/cli": "^54.0.19"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   }
 }

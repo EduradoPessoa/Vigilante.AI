@@ -8,15 +8,24 @@ export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if we have a session, then redirect
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    // O cliente supabase-js detecta automaticamente o hash/query parameters
+    // e atualiza a sessão localstorage.
+    // Usamos onAuthStateChange para saber quando isso acontece.
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        // Login com sucesso, redirecionar para home
         router.push('/');
+      }
+      if (event === 'SIGNED_OUT') {
+         // Algo deu errado ou usuário saiu
+         router.push('/login');
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' || session) {
+    // Fallback: Verificar se já existe sessão (caso o redirecionamento seja muito rápido)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
         router.push('/');
       }
     });
@@ -28,9 +37,10 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50">
-      <div className="text-center">
-        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent mx-auto"></div>
-        <p className="text-lg font-medium text-slate-600">Conectando ao Google...</p>
+      <div className="text-center p-8 bg-white rounded-lg shadow-sm border border-slate-200">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+        <h2 className="text-xl font-semibold text-slate-800 mb-2">Autenticando...</h2>
+        <p className="text-slate-500">Aguarde enquanto confirmamos seus dados.</p>
       </div>
     </div>
   );
