@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, Alert, TouchableOpacity, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, Alert, TouchableOpacity, Text, View, ScrollView, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -121,75 +121,137 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-            <Ionicons name="person-circle" size={80} color="#4A90E2" />
+            <View style={styles.avatarContainer}>
+              {session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture ? (
+                <Image 
+                  source={{ uri: session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture }} 
+                  style={styles.avatar} 
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Ionicons name="person" size={40} color="#FFF" />
+                </View>
+              )}
+              <View style={styles.editBadge}>
+                <Ionicons name="camera" size={12} color="#FFF" />
+              </View>
+            </View>
             <ThemedText type="title" style={styles.title}>Meu Perfil</ThemedText>
             <ThemedText style={styles.subtitle}>{session?.user.email}</ThemedText>
         </View>
 
-        <View style={styles.form}>
-            <ThemedText type="subtitle">Nome Completo</ThemedText>
-            <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
-                placeholder="Seu nome"
-                placeholderTextColor={isDark ? '#888' : '#666'}
-                value={fullName}
-                onChangeText={setFullName}
-            />
+        <View style={styles.formCard}>
+            <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Informações Pessoais</ThemedText>
+            
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Nome Completo</ThemedText>
+              <TextInput
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Seu nome"
+                  placeholderTextColor={isDark ? '#666' : '#999'}
+                  value={fullName}
+                  onChangeText={setFullName}
+              />
+            </View>
 
-            <ThemedText type="subtitle">Endereço (Busca por CEP)</ThemedText>
-            <View style={styles.row}>
+            <View style={styles.divider} />
+            <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Endereço</ThemedText>
+
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>CEP</ThemedText>
+              <View style={styles.cepContainer}>
                 <TextInput
                     style={[styles.input, styles.flex1, isDark && styles.inputDark]}
-                    placeholder="CEP (00000-000)"
-                    placeholderTextColor={isDark ? '#888' : '#666'}
+                    placeholder="00000-000"
+                    placeholderTextColor={isDark ? '#666' : '#999'}
                     value={cep}
                     onChangeText={handleCepChange}
                     onBlur={handleCepBlur}
                     keyboardType="number-pad"
                     maxLength={9}
                 />
+                <TouchableOpacity style={styles.searchButton} onPress={handleCepBlur}>
+                  <Ionicons name="search" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
-                placeholder="Rua"
-                placeholderTextColor={isDark ? '#888' : '#666'}
-                value={street}
-                onChangeText={setStreet}
-            />
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Logradouro</ThemedText>
+              <TextInput
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Rua, Avenida..."
+                  placeholderTextColor={isDark ? '#666' : '#999'}
+                  value={street}
+                  onChangeText={setStreet}
+              />
+            </View>
 
-            <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
-                placeholder="Bairro"
-                placeholderTextColor={isDark ? '#888' : '#666'}
-                value={neighborhood}
-                onChangeText={setNeighborhood}
-            />
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Bairro</ThemedText>
+              <TextInput
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Bairro"
+                  placeholderTextColor={isDark ? '#666' : '#999'}
+                  value={neighborhood}
+                  onChangeText={setNeighborhood}
+              />
+            </View>
 
             <View style={styles.row}>
-                <TextInput
-                    style={[styles.input, styles.flex2, isDark && styles.inputDark]}
-                    placeholder="Cidade"
-                    placeholderTextColor={isDark ? '#888' : '#666'}
-                    value={city}
-                    onChangeText={setCity}
-                />
-                <TextInput
-                    style={[styles.input, styles.flex1, isDark && styles.inputDark]}
-                    placeholder="UF"
-                    placeholderTextColor={isDark ? '#888' : '#666'}
-                    value={state}
-                    onChangeText={setState}
-                    maxLength={2}
-                />
+                <View style={[styles.inputGroup, styles.flex2]}>
+                  <ThemedText style={styles.label}>Cidade</ThemedText>
+                  <TextInput
+                      style={[styles.input, isDark && styles.inputDark]}
+                      placeholder="Cidade"
+                      placeholderTextColor={isDark ? '#666' : '#999'}
+                      value={city}
+                      onChangeText={setCity}
+                  />
+                </View>
+                <View style={[styles.inputGroup, styles.flex1]}>
+                  <ThemedText style={styles.label}>UF</ThemedText>
+                  <TextInput
+                      style={[styles.input, isDark && styles.inputDark]}
+                      placeholder="UF"
+                      placeholderTextColor={isDark ? '#666' : '#999'}
+                      value={state}
+                      onChangeText={setState}
+                      maxLength={2}
+                      autoCapitalize="characters"
+                  />
+                </View>
             </View>
 
             <TouchableOpacity 
-                style={[styles.button, loading && styles.buttonDisabled]} 
+                style={[styles.primaryButton, loading && styles.buttonDisabled]} 
                 onPress={updateProfile}
                 disabled={loading}
             >
-                <Text style={styles.buttonText}>{loading ? 'Salvando...' : 'Salvar Perfil'}</Text>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Salvar Alterações</Text>
+                )}
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={styles.logoutButton} 
+                onPress={() => {
+                  Alert.alert('Sair', 'Tem certeza que deseja sair?', [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { 
+                      text: 'Sair', 
+                      style: 'destructive', 
+                      onPress: async () => {
+                        await supabase.auth.signOut();
+                      }
+                    },
+                  ]);
+                }}
+                disabled={loading}
+            >
+                <Text style={styles.logoutButtonText}>Sair da Conta</Text>
             </TouchableOpacity>
         </View>
       </ScrollView>
@@ -203,25 +265,116 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 40,
+    paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
     marginBottom: 30,
   },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 4,
+    borderColor: '#fff',
+  },
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#4A90E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#fff',
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#4A90E2',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
   title: {
-    marginTop: 10,
+    marginTop: 8,
+    fontSize: 24,
   },
   subtitle: {
-    marginTop: 5,
-    opacity: 0.7,
+    marginTop: 4,
+    opacity: 0.6,
+    fontSize: 14,
   },
-  form: {
-    gap: 15,
+  formCard: {
+    backgroundColor: '#fff', // Theme me
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    marginBottom: 16,
+    color: '#333',
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 12,
+    color: '#888',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    fontWeight: '600',
+  },
+  input: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    color: '#333',
+  },
+  inputDark: {
+    backgroundColor: '#333',
+    borderColor: '#555',
+    color: '#fff',
+  },
+  cepContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  searchButton: {
+    backgroundColor: '#4A90E2',
+    width: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 16,
   },
   flex1: {
     flex: 1,
@@ -229,33 +382,41 @@ const styles = StyleSheet.create({
   flex2: {
     flex: 2,
   },
-  input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 10,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#000',
+  divider: {
+    height: 1,
+    backgroundColor: '#EEEEEE',
+    marginVertical: 24,
   },
-  inputDark: {
-    backgroundColor: '#1e1e1e',
-    borderColor: '#333',
-    color: '#fff',
-  },
-  button: {
+  primaryButton: {
     backgroundColor: '#4A90E2',
-    padding: 18,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 24,
+    shadowColor: '#4A90E2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  logoutButton: {
+    backgroundColor: 'transparent',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 12,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
-  buttonText: {
+  primaryButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
+  },
+  logoutButtonText: {
+    color: '#FF5252',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

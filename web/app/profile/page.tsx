@@ -153,9 +153,17 @@ export default function ProfilePage() {
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="rounded-lg bg-white p-8 shadow">
           <div className="mb-8 flex items-center gap-4 border-b border-slate-200 pb-6">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
-              <User className="h-8 w-8" />
-            </div>
+            {session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture ? (
+              <img 
+                src={session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture} 
+                alt="Profile" 
+                className="h-16 w-16 rounded-full object-cover border-2 border-indigo-100"
+              />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                <User className="h-8 w-8" />
+              </div>
+            )}
             <div>
               <h2 className="text-xl font-semibold text-slate-900">{session?.user.email}</h2>
               <p className="text-sm text-slate-500">Agente de Campo</p>

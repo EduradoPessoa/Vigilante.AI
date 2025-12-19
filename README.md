@@ -40,6 +40,10 @@ O projeto foi reestruturado como um Monorepo contendo:
    ```bash
    npm install
    ```
+3. Construa o pacote compartilhado (obrigatório para o funcionamento do Monorepo):
+   ```bash
+   npm run build --workspace=@vigilante/shared
+   ```
 
 ### Rodando a Aplicação Web (Next.js)
 ```bash
@@ -57,6 +61,11 @@ cd mobile && npx expo start
 ```
 Use o app **Expo Go** no seu celular para escanear o QR Code.
 
+### 🔌 Webhook Local (n8n)
+Para que a análise de risco funcione localmente, é necessário ter um serviço escutando na porta `9090` ou ajustar a URL no código.
+- URL Padrão: `http://localhost:9090/webhook-test/avaliar-veiculo`
+- O sistema possui tratamento para `Timeout` e `Veículo Não Encontrado`.
+
 ## ⚙️ Configuração
 Crie os arquivos `.env` nas pastas `web` e `mobile` baseados nos exemplos:
 
@@ -64,20 +73,23 @@ Crie os arquivos `.env` nas pastas `web` e `mobile` baseados nos exemplos:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-NEXT_PUBLIC_N8N_WEBHOOK_URL=...
 ```
 
 **Mobile (`mobile/.env`):**
 ```env
 EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
-EXPO_PUBLIC_N8N_WEBHOOK_URL=...
 ```
 
 ## 🤖 Ferramentas de IA Utilizadas
 
-Este projeto foi desenvolvido com o auxílio de ferramentas de IA para acelerar a produtividade e garantir a qualidade do código:
+Este projeto foi desenvolvido com o auxílio de ferramentas de IA para acelerar a produtividade, garantir a qualidade do código e prover funcionalidades inteligentes:
 
-- **Trae AI (IDE)**: Utilizado como par programador principal para geração de código (Next.js/React Native), refatoração, correção de bugs e automação de commits.
-- **Claude 3.5 Sonnet / GPT-4o**: Modelos subjacentes utilizados pelo agente para raciocínio lógico complexo e estruturação de arquitetura.
+### Desenvolvimento (Pair Programming)
+- **Trae AI (IDE)**: Utilizado como par programador principal para geração de código, refatoração e correção de bugs em tempo real.
+- **Gemini 1.5 Pro**: Modelo de linguagem utilizado pelo assistente para raciocínio lógico, geração de testes unitários e solução de problemas complexos de infraestrutura (Monorepo/Expo).
+
+### Funcionalidades do Sistema
+- **n8n (Workflow Automation)**: Utilizado para orquestrar a inteligência do sistema, simulando uma análise de risco veicular que integra múltiplas fontes de dados e IA.
+- **IA Generativa (via n8n)**: Responsável por gerar o "Parecer da Inteligência Artificial", analisando os dados brutos (multas, restrições) e criando um resumo textual explicativo para o usuário.
 

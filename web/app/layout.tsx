@@ -10,7 +10,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="bg-slate-50 text-slate-900">
+      <body className="bg-slate-50 text-slate-900" suppressHydrationWarning>
         <AuthProvider>
           {children}
         </AuthProvider>
