@@ -11,6 +11,9 @@
     "mobile": "npm run start --workspace=mobile",
     "android": "npm run android --workspace=mobile",
     "ios": "npm run ios --workspace=mobile",
+    "test:web": "npm run test --workspace=web",
+    "test:mobile": "npx jest -c mobile/jest.config.js",
+    "test": "npm run test:web && npm run test:mobile",
     "install:all": "npm install"
   },
   "dependencies": {

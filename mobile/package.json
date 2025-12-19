@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "jest"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -17,6 +18,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "@supabase/supabase-js": "^2.88.0",
+    "@vigilante/shared": "*",
     "axios": "^1.13.2",
     "expo": "^54.0.29",
     "expo-constants": "~18.0.12",
@@ -41,10 +43,11 @@
     "react-native-screens": "~4.16.0",
     "react-native-url-polyfill": "^3.0.0",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.5.1",
-    "@vigilante/shared": "*"
+    "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.3",
     "@types/react": "~19.1.0",
     "babel-plugin-transform-define": "^2.1.4",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",

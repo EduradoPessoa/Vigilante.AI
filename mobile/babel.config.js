@@ -3,7 +3,6 @@ module.exports = function (api) {
   return {
     presets: [['babel-preset-expo', { jsxImportSource: 'react' }]],
     plugins: [
-      'expo-router/babel',
       'react-native-reanimated/plugin',
       ['transform-define', {
         'process.env.EXPO_ROUTER_APP_ROOT': './app',

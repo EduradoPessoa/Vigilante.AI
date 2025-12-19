@@ -93,3 +93,34 @@ Este projeto foi desenvolvido com o auxílio de ferramentas de IA para acelerar 
 - **n8n (Workflow Automation)**: Utilizado para orquestrar a inteligência do sistema, simulando uma análise de risco veicular que integra múltiplas fontes de dados e IA.
 - **IA Generativa (via n8n)**: Responsável por gerar o "Parecer da Inteligência Artificial", analisando os dados brutos (multas, restrições) e criando um resumo textual explicativo para o usuário.
 
+## 🧪 Testes Automatizados
+
+O projeto conta com testes unitários automatizados para garantir a integridade das regras de negócio, tanto na Web quanto no Mobile.
+
+Para executar todos os testes:
+```bash
+npm run test
+```
+
+### Evidências de Execução
+Os testes validam cenários de sucesso e erro na validação de placas e outras regras de negócio.
+
+**Web:**
+![Resultado dos Testes Web](docs/img/test-web.png)
+
+**Mobile:**
+![Resultado dos Testes Mobile](docs/img/test-mobile.png)
+
+## 📹 Demonstração
+
+Confira o vídeo abaixo demonstrando todas as funcionalidades do aplicativo em execução:
+
+[▶️ Assistir ao Vídeo de Demonstração](COLOQUE_O_LINK_DO_VIDEO_AQUI)
+
+## 🔄 Integração com N8N
+
+Foi criado um workflow completo no N8N para orquestrar a inteligência do Vigilante.AI. Este workflow recebe os dados do app, consulta bases externas (simuladas) e utiliza IA para gerar o relatório de risco.
+
+[🔗 Visualizar Workflow do N8N](COLOQUE_O_LINK_DO_WORKFLOW_AQUI)
+
+
